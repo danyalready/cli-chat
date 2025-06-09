@@ -1,16 +1,18 @@
 {
-  "name": "web-sockets",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/ws": "^8.18.1"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "ws": "^8.18.2"
-  }
+    "name": "web-sockets",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "build": "bun build src/server.ts src/client.ts --outdir dist --target node"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "@types/ws": "^8.18.1"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    },
+    "dependencies": {
+        "ws": "^8.18.2"
+    }
 }
