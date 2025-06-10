@@ -1,3 +1,6 @@
 import ChatClient from './core/ChatClient';
+import { getParsedArgs } from './utils/getParsedArgs';
 
-new ChatClient('ws://localhost:8080');
+const { server } = getParsedArgs();
+
+new ChatClient(server);
