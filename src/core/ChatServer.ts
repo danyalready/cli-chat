@@ -31,9 +31,9 @@ export default class ChatServer {
         console.log(`Chat server is running on ws://localhost:${this.port}`);
     }
 
-    private broadcast(msg: Message, sender: WebSocket) {
+    private broadcast(msg: Message, _sender: WebSocket) {
         for (const client of this.wss.clients) {
-            if (client !== sender && client.readyState === WebSocket.OPEN) {
+            if (client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify(msg));
             }
         }

@@ -23,30 +23,6 @@ export default class ChatClient {
             this.promptUsername();
         });
 
-        this.ws.on('message', (data) => {
-            try {
-                const msg: Message = JSON.parse(data.toString());
-                const time = new Date(msg.time).toLocaleTimeString();
-
-                // Clear current prompt line
-                readline.clearLine(process.stdout, 0);
-                readline.cursorTo(process.stdout, 0);
-
-                if (msg.system) {
-                    console.log(`[${msg.time}] ${msg.user}: ${msg.text}`);
-                } else {
-                    console.log(`[${time}] ${msg.user}: ${msg.text}`);
-                }
-
-                // Re-show prompt
-                this.rl.prompt(true); // true = preserve typed text
-            } catch {
-                this.rl.pause();
-                console.error('Malformed message:', data.toString());
-                this.rl.resume();
-            }
-        });
-
         this.ws.on('close', () => {
             console.log('Disconnected from server.');
             this.rl.close();
@@ -62,8 +38,8 @@ export default class ChatClient {
     private promptUsername() {
         this.rl.question('Enter your name: ', (name) => {
             this.username = name;
-            console.log(`Hello, ${this.username}! Start chatting:`);
             this.listenForInput();
+            this.listenForMessages();
         });
     }
 
@@ -77,10 +53,39 @@ export default class ChatClient {
             } else {
                 const msg: Message = { user: this.username, text: line, time: new Date().toISOString() };
 
+                readline.clearLine(process.stdout, 0); // clear the line
+                readline.cursorTo(process.stdout, 0); // move cursor to line start
+
                 this.ws.send(JSON.stringify(msg));
             }
 
             this.rl.prompt();
+        });
+    }
+
+    private listenForMessages() {
+        this.ws.on('message', (data) => {
+            try {
+                const msg: Message = JSON.parse(data.toString());
+                const time = new Date(msg.time).toLocaleTimeString();
+
+                readline.moveCursor(process.stdout, 0, -1); // move cursor up one line
+                readline.clearLine(process.stdout, 0); // clear the line
+                readline.cursorTo(process.stdout, 0); // move cursor to line start
+
+                if (msg.system) {
+                    console.log(`[${msg.time}] ${msg.user}: ${msg.text}`);
+                } else {
+                    console.log(`[${time}] ${msg.user}: ${msg.text}`);
+                }
+
+                // Re-show prompt
+                this.rl.prompt(true); // true = preserve typed text
+            } catch {
+                this.rl.pause();
+                console.error('Malformed message:', data.toString());
+                this.rl.resume();
+            }
         });
     }
 }
