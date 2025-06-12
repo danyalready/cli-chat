@@ -1,7 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws';
 
-import type { Message } from './Message';
-
 export default class ChatServer {
     private wss: WebSocketServer;
     private port: number;
@@ -18,9 +16,7 @@ export default class ChatServer {
             console.log('Client connected.');
 
             socket.on('message', (data) => {
-                const msg: Message = JSON.parse(data.toString());
-
-                this.broadcast(msg, socket);
+                this.broadcast(data.toString(), socket);
             });
 
             socket.on('close', () => {
@@ -31,10 +27,10 @@ export default class ChatServer {
         console.log(`Chat server is running on ws://localhost:${this.port}`);
     }
 
-    private broadcast(msg: Message, _sender: WebSocket) {
+    private broadcast(msg: string, _sender: WebSocket) {
         for (const client of this.wss.clients) {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify(msg));
+                client.send(msg);
             }
         }
     }

@@ -2,18 +2,21 @@ import WebSocket from 'ws';
 import readline from 'readline';
 
 import type { Message } from './Message';
+import AESCrypto from './AESCrypto';
 
 export default class ChatClient {
     private ws: WebSocket;
     private rl: readline.Interface;
+    private aes: AESCrypto;
     private username: string = '';
 
-    constructor(private url: string = 'ws://localhost:8080') {
-        this.ws = new WebSocket(this.url);
+    constructor(url: string = 'ws://localhost:8080', aes: AESCrypto) {
+        this.ws = new WebSocket(url);
         this.rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
         });
+        this.aes = aes;
 
         this.setupConnection();
     }
@@ -47,7 +50,7 @@ export default class ChatClient {
         this.rl.setPrompt('>');
         this.rl.prompt();
 
-        this.rl.on('line', (line) => {
+        this.rl.on('line', async (line) => {
             if (line.trim() === '/exit') {
                 this.ws.close();
             } else {
@@ -56,7 +59,9 @@ export default class ChatClient {
                 readline.clearLine(process.stdout, 0); // clear the line
                 readline.cursorTo(process.stdout, 0); // move cursor to line start
 
-                this.ws.send(JSON.stringify(msg));
+                const encrypted = await this.aes.encrypt(JSON.stringify(msg));
+
+                this.ws.send(encrypted);
             }
 
             this.rl.prompt();
@@ -64,9 +69,10 @@ export default class ChatClient {
     }
 
     private listenForMessages() {
-        this.ws.on('message', (data) => {
+        this.ws.on('message', async (data) => {
             try {
-                const msg: Message = JSON.parse(data.toString());
+                const decrypted = await this.aes.decrypt(data.toString());
+                const msg: Message = JSON.parse(decrypted);
                 const time = new Date(msg.time).toLocaleTimeString();
 
                 readline.moveCursor(process.stdout, 0, -1); // move cursor up one line
