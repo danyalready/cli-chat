@@ -10,13 +10,13 @@ export default class ChatClient {
     private aes: AESCrypto;
     private username: string = '';
 
-    constructor(url: string = 'ws://localhost:8080', aes: AESCrypto) {
+    constructor(url: string = 'ws://localhost:8080', cryptoKey: CryptoKey) {
         this.ws = new WebSocket(url);
         this.rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
         });
-        this.aes = aes;
+        this.aes = new AESCrypto(cryptoKey);
 
         this.setupConnection();
     }

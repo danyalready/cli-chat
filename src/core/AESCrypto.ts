@@ -1,17 +1,6 @@
 export default class AESCrypto {
     constructor(private key: CryptoKey) {}
 
-    static async create(keyString: string): Promise<AESCrypto> {
-        const keyBytes = new TextEncoder().encode(keyString);
-
-        const cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, [
-            'encrypt',
-            'decrypt',
-        ]);
-
-        return new AESCrypto(cryptoKey);
-    }
-
     async encrypt(plainText: string): Promise<string> {
         const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV
         const plainBytes = new TextEncoder().encode(plainText);
