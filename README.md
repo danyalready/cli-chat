@@ -6,10 +6,10 @@ To install dependencies:
 bun install
 ```
 
-To run:
+To build and create executable (windows)
 
 ```bash
-bun run index.ts
-```
+npx esbuild src/client.ts   --bundle   --platform=node   --format=cjs   --target=node18   --external:crypto   --outfile=dist/client.js
 
-This project was created using `bun init` in bun v1.2.15. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+pkg dist/client.js --targets node18-win-x64 --output dist/client.exe
+```

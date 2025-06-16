@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 export default class AESCrypto {
     constructor(private key: CryptoKey) {}
 
