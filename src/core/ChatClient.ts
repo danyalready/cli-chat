@@ -6,16 +6,15 @@ import AESCrypto from './AESCrypto';
 
 export default class ChatClient {
     private ws: WebSocket;
-    private rl: readline.Interface;
+    private rl: readline.Interface = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
     private aes: AESCrypto;
     private username: string = '';
 
     constructor(url: string = 'ws://localhost:8080', cryptoKey: CryptoKey) {
         this.ws = new WebSocket(url);
-        this.rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout,
-        });
         this.aes = new AESCrypto(cryptoKey);
 
         this.setupConnection();
